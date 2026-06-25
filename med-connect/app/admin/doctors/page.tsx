@@ -28,7 +28,14 @@ export default function AdminDoctors() {
       .from('doctors')
       .select('*, profile:profile_id(name, email, phone)')
       .order('created_at', { ascending: false })
-    setDoctors(data || [])
+    
+    const formattedDoctors = (data || []).map((doc: any) => ({
+      id: doc.id,
+      specialization: doc.specialization,
+      experience: doc.experience,
+      profile: Array.isArray(doc.profile) ? doc.profile[0] : doc.profile
+    }))
+    setDoctors(formattedDoctors)
     setLoading(false)
   }
 

@@ -36,7 +36,17 @@ export default function PatientRecords() {
       .select('*, doctor:doctor_id(name)')
       .eq('patient_id', uid)
       .order('record_date', { ascending: false })
-    setRecords(data || [])
+    
+    const formattedRecords = (data || []).map((rec: any) => ({
+      id: rec.id,
+      diagnosis: rec.diagnosis,
+      treatment: rec.treatment,
+      prescription: rec.prescription,
+      test_results: rec.test_results,
+      record_date: rec.record_date,
+      doctor: Array.isArray(rec.doctor) ? rec.doctor[0] : rec.doctor
+    }))
+    setRecords(formattedRecords)
     setLoading(false)
   }
 

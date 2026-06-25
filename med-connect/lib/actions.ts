@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { supabase } from './supabase'
 import { redirect } from 'next/navigation'
@@ -29,6 +29,14 @@ export async function login(formData: FormData) {
   if (profile.role === 'admin') redirect('/admin/dashboard')
   if (profile.role === 'doctor') redirect('/doctor/dashboard')
   redirect('/patient/dashboard')
+}
+
+export async function logout() {
+  const cookieStore = cookies()
+  cookieStore.delete('medconnect_user_id')
+  cookieStore.delete('medconnect_role')
+  cookieStore.delete('medconnect_name')
+  redirect('/login')
 }
 
 export async function register(formData: FormData) {

@@ -29,7 +29,15 @@ export default function AdminPatients() {
       .from('patients')
       .select('*, profile:profile_id(name, email, phone)')
       .order('created_at', { ascending: false })
-    setPatients(data || [])
+    
+    const formattedPatients = (data || []).map((pat: any) => ({
+      id: pat.id,
+      age: pat.age,
+      gender: pat.gender,
+      blood_group: pat.blood_group,
+      profile: Array.isArray(pat.profile) ? pat.profile[0] : pat.profile
+    }))
+    setPatients(formattedPatients)
     setLoading(false)
   }
 

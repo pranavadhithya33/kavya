@@ -47,7 +47,17 @@ export default function DoctorAppointments() {
       .select('*, patient:patient_id(name)')
       .eq('doctor_id', uid)
       .order('appointment_date', { ascending: false })
-    setAppointments(data || [])
+    
+    const formatted = (data || []).map((apt: any) => ({
+      id: apt.id,
+      patient_id: apt.patient_id,
+      appointment_date: apt.appointment_date,
+      appointment_time: apt.appointment_time,
+      status: apt.status,
+      reason: apt.reason,
+      patient: Array.isArray(apt.patient) ? apt.patient[0] : apt.patient
+    }))
+    setAppointments(formatted)
     setLoading(false)
   }
 

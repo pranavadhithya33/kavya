@@ -1,8 +1,21 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { login } from '@/lib/actions'
 import { Stethoscope, ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (formData: FormData) => {
+    setError('')
+    const result = await login(formData)
+    if (result?.error) {
+      setError(result.error)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
@@ -23,7 +36,12 @@ export default function LoginPage() {
             <p className="text-gray-500 mt-1">Sign in to your MedConnect account</p>
           </div>
 
-          <form action={login} className="space-y-4">
+          <form action={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg">
+                {error}
+              </div>
+            )}
             <div>
               <label className="label">Email</label>
               <input

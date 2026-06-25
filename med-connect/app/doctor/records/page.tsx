@@ -43,13 +43,29 @@ export default function DoctorRecords() {
       .select('*, patient:patient_id(name)')
       .eq('doctor_id', uid)
       .order('record_date', { ascending: false })
-    setRecords(r || [])
+    
+    const formattedRecords = (r || []).map((rec: any) => ({
+      id: rec.id,
+      patient_id: rec.patient_id,
+      diagnosis: rec.diagnosis,
+      treatment: rec.treatment,
+      prescription: rec.prescription,
+      test_results: rec.test_results,
+      record_date: rec.record_date,
+      patient: Array.isArray(rec.patient) ? rec.patient[0] : rec.patient
+    }))
+    setRecords(formattedRecords)
 
     const { data: apt } = await supabase
       .from('appointments')
       .select('patient_id, patient:patient_id(name)')
       .eq('doctor_id', uid)
-    const unique = apt ? Array.from(new Map(apt.map((p: any) => [p.patient_id, p])).values()) : []
+    
+    const formattedApt = (apt || []).map((p: any) => ({
+      patient_id: p.patient_id,
+      patient: Array.isArray(p.patient) ? p.patient[0] : p.patient
+    }))
+    const unique = formattedApt ? Array.from(new Map(formattedApt.map((p: any) => [p.patient_id, p])).values()) : []
     setPatients(unique)
     setLoading(false)
   }

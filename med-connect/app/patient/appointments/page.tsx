@@ -16,6 +16,7 @@ import { formatDate } from '@/lib/utils'
 
 interface Doctor {
   id: string
+  profile_id: string
   specialization: string
   profile: { name: string }
 }
@@ -51,15 +52,31 @@ export default function PatientAppointments() {
   const fetchData = async (uid: string) => {
     const { data: doctorsData } = await supabase
       .from('doctors')
-      .select('id, specialization, profile:profile_id(name)')
-    setDoctors(doctorsData || [])
+      .select('id, profile_id, specialization, profile:profile_id(name)')
+    
+    const formattedDoctors = (doctorsData || []).map((doc: any) => ({
+      id: doc.id,
+      profile_id: doc.profile_id,
+      specialization: doc.specialization,
+      profile: Array.isArray(doc.profile) ? doc.profile[0] : doc.profile
+    }))
+    setDoctors(formattedDoctors)
 
     const { data: aptData } = await supabase
       .from('appointments')
       .select('*, doctor:doctor_id(name)')
       .eq('patient_id', uid)
       .order('appointment_date', { ascending: false })
-    setAppointments(aptData || [])
+    
+    const formattedAppointments = (aptData || []).map((apt: any) => ({
+      id: apt.id,
+      appointment_date: apt.appointment_date,
+      appointment_time: apt.appointment_time,
+      status: apt.status,
+      reason: apt.reason,
+      doctor: Array.isArray(apt.doctor) ? apt.doctor[0] : apt.doctor
+    }))
+    setAppointments(formattedAppointments)
     setLoading(false)
   }
 
@@ -116,7 +133,7 @@ export default function PatientAppointments() {
                 <select name="doctor_id" required className="input">
                   <option value="">Choose a doctor</option>
                   {doctors.map((doc) => (
-                    <option key={doc.id} value={doc.profile?.id || doc.id}>
+                    <option key={doc.id} value={doc.profile_id}>
                       Dr. {doc.profile?.name} - {doc.specialization}
                     </option>
                   ))}

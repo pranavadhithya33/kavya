@@ -29,7 +29,12 @@ export default function DoctorPatients() {
       .from('appointments')
       .select('patient_id, patient:patient_id(name, phone, email)')
       .eq('doctor_id', uid)
-    const unique = data ? Array.from(new Map(data.map((p: any) => [p.patient_id, p])).values()) : []
+    
+    const formatted = (data || []).map((p: any) => ({
+      patient_id: p.patient_id,
+      patient: Array.isArray(p.patient) ? p.patient[0] : p.patient
+    }))
+    const unique = formatted ? Array.from(new Map(formatted.map((p: any) => [p.patient_id, p])).values()) : []
     setPatients(unique as Patient[])
     setLoading(false)
   }
