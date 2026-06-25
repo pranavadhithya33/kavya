@@ -69,23 +69,32 @@ export async function register(formData: FormData) {
     .single()
 
   if (profileError || !profile) {
-    return { error: 'Registration failed' }
+    console.error('Supabase registration error:', profileError)
+    return { error: `Registration failed: ${profileError?.message || 'No profile created'}` }
   }
 
   if (role === 'doctor') {
-    await supabase.from('doctors').insert({
+    const { error: docError } = await supabase.from('doctors').insert({
       profile_id: profile.id,
       specialization,
       experience,
       availability: [],
     })
+    if (docError) {
+      console.error('Doctor profile insertion error:', docError)
+      return { error: `Registration failed: ${docError.message}` }
+    }
   } else if (role === 'patient') {
-    await supabase.from('patients').insert({
+    const { error: patError } = await supabase.from('patients').insert({
       profile_id: profile.id,
       age: age ? parseInt(age) : null,
       gender,
       blood_group,
     })
+    if (patError) {
+      console.error('Patient profile insertion error:', patError)
+      return { error: `Registration failed: ${patError.message}` }
+    }
   }
 
   const cookieStore = cookies()
